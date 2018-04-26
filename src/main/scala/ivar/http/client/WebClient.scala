@@ -14,7 +14,7 @@ import scala.util.{Failure, Success}
 object WebClient {
   def main(args: Array[String]): Unit = {
     val settings = ConnectionPoolSettings(system)
-      .withTransport(ClientTransport.httpsProxy(InetSocketAddress.createUnresolved("3.20.128.6", 88)))
+    //      .withTransport(ClientTransport.httpsProxy(InetSocketAddress.createUnresolved("3.20.128.6", 88)))
     val responseFuture: Future[HttpResponse] =
       Http().singleRequest(
         HttpRequest(uri = "https://psqlsimple.run.aws-eu-central-1-pr.ice.predix.io/student/all"), settings = settings)

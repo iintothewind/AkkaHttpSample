@@ -11,8 +11,8 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object ZhihuClient extends App {
-  val settings = ConnectionPoolSettings(system)
-    .withTransport(ClientTransport.httpsProxy(InetSocketAddress.createUnresolved("3.20.128.6", 88)))
+  val settings: ConnectionPoolSettings = ConnectionPoolSettings(system)
+  //    .withTransport(ClientTransport.httpsProxy(InetSocketAddress.createUnresolved("3.20.128.6", 88)))
   val responseFuture: Future[HttpResponse] =
     Http().singleRequest(
       HttpRequest(uri = "https://news-at.zhihu.com/api/4/news/latest"),
