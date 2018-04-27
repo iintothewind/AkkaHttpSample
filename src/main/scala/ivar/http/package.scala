@@ -10,6 +10,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import javax.net.ssl.{KeyManager, SSLContext, X509TrustManager}
 
+import akka.http.scaladsl.server.Directives._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContextExecutor
 
@@ -19,7 +20,17 @@ package object http {
   implicit val executor: ExecutionContextExecutor = system.dispatcher
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val log: LoggingAdapter = Logging.getLogger(system, this)
-  implicit val routes: ListBuffer[Route] = ListBuffer.empty[Route]
+  private val routeBuffer: ListBuffer[Route] = ListBuffer.empty[Route]
+
+  sealed case class RouteRegister() {
+    def update(route: => Route): Unit = {
+      routeBuffer += pathPrefix("api")(route)
+    }
+  }
+
+  implicit val register: RouteRegister = RouteRegister()
+
+  def routes: List[Route] = routeBuffer.result()
 
   private val trustfulSslContext: SSLContext = {
     object NoCheckX509TrustManager extends X509TrustManager {

@@ -3,6 +3,6 @@ package server.service
 
 import ivar.http.server.route.{HelloRoutes, UploadRoutes}
 
-trait InitService
+trait RouteService
   extends HelloRoutes
     with UploadRoutes

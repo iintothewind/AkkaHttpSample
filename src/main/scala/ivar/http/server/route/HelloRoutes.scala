@@ -5,7 +5,7 @@ import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.server.Directives._
 import ivar.http.server.protocol.{HelloMessage, HelloProtocol}
 
-trait HelloRoutes extends AbstractRoutes with HelloProtocol {
+trait HelloRoutes extends HelloProtocol {
   register() = path("hello") {
     get {
       complete(ToResponseMarshallable("<h1>Say hello to akka-http</h1>"))
