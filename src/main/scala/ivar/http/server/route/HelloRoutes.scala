@@ -3,10 +3,10 @@ package server.route
 
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.server.Directives._
-import ivar.http.server.protocol.{HelloMessage, HelloProtocol}
+import ivar.http.server.event.{HelloEvent, HelloMsg}
 
-trait HelloRoutes extends HelloProtocol {
-  register() = path("hello") {
+trait HelloRoutes extends HelloEvent {
+  private val helloRoute = path("hello") {
     get {
       complete(ToResponseMarshallable("<h1>Say hello to akka-http</h1>"))
     }
@@ -18,7 +18,7 @@ trait HelloRoutes extends HelloProtocol {
   }
 
   register() = path("helloMessage") {
-    (post & entity(as[HelloMessage])) { msg =>
+    (post & entity(as[HelloMsg])) { msg =>
       complete(msg)
     }
   }
