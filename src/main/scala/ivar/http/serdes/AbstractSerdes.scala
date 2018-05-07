@@ -1,7 +1,7 @@
 package ivar.http
-package server.event
+package serdes
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.DefaultJsonProtocol
 
-trait AbstractEvent extends SprayJsonSupport with DefaultJsonProtocol
+trait AbstractSerdes extends SprayJsonSupport with DefaultJsonProtocol
