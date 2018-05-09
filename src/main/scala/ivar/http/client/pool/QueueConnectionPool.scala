@@ -3,6 +3,7 @@ package client.pool
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, QueueOfferResult}
 
@@ -13,12 +14,12 @@ class QueueConnectionPool(pool: Flow[(HttpRequest, Promise[HttpResponse]), (Try[
                           bufferSize: Int = 10,
                           overflowStrategy: OverflowStrategy = OverflowStrategy.dropNew
                          ) {
-  val queue: SourceQueueWithComplete[(HttpRequest, Promise[HttpResponse])] = Source
+  private val queue: SourceQueueWithComplete[(HttpRequest, Promise[HttpResponse])] = Source
     .queue[(HttpRequest, Promise[HttpResponse])](bufferSize, overflowStrategy)
     .via(pool)
     .toMat(Sink.foreach {
-      case (Success(response), _) => Future.successful(response)
-      case (Failure(e), _) => Future.failed(e)
+      case (Success(response), promise) => promise.success(response)
+      case (Failure(e), promise) => promise.failure(e)
     })(Keep.left)
     .run()
 
@@ -37,7 +38,8 @@ object QueueConnectionPool {
   def httpPool(host: String,
                port: Int = 80,
                bufferSize: Int = 10,
-               overflowStrategy: OverflowStrategy = OverflowStrategy.dropNew): QueueConnectionPool =
+               overflowStrategy: OverflowStrategy = OverflowStrategy.dropNew,
+               connectionPoolSettings: ConnectionPoolSettings = connectionPoolSettings): QueueConnectionPool =
     new QueueConnectionPool(
       Http().cachedHostConnectionPool[Promise[HttpResponse]](host, port, settings = connectionPoolSettings),
       bufferSize,
@@ -46,7 +48,8 @@ object QueueConnectionPool {
   def httpsPool(host: String,
                 port: Int = 443,
                 bufferSize: Int = 10,
-                overflowStrategy: OverflowStrategy = OverflowStrategy.dropNew): QueueConnectionPool =
+                overflowStrategy: OverflowStrategy = OverflowStrategy.dropNew,
+                connectionPoolSettings: ConnectionPoolSettings = connectionPoolSettings): QueueConnectionPool =
     new QueueConnectionPool(
       Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](host, port, settings = connectionPoolSettings),
       bufferSize,
