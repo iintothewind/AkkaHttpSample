@@ -8,8 +8,8 @@ sealed case class News(date: String, stories: Array[Story], topStories: Array[St
 
 
 trait ZhihuSerdes extends AbstractSerdes {
-  implicit val storyFormat: RootJsonFormat[Story] = jsonFormat2(Story.apply)
-  implicit val newsFormat: RootJsonFormat[News] = new RootJsonFormat[News] {
+  implicit val storySerdes: RootJsonFormat[Story] = jsonFormat2(Story.apply)
+  implicit val newsSerdes: RootJsonFormat[News] = new RootJsonFormat[News] {
     override def write(news: News): JsValue =
       JsObject(
         "date" -> JsString(news.date),

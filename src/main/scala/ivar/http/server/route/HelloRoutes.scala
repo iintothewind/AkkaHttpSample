@@ -12,19 +12,19 @@ trait HelloRoutes extends HelloSerdes {
     case _: ArithmeticException => complete(StatusCodes.BadRequest -> "You've got your arithmetic wrong, fool!")
   }
 
-  register() = (get & path("hello")) {
+  routeBuf() = (get & path("hello")) {
       complete("Hello, Akka Http")
   }
 
-  register() = (get & pathPrefix("name") & path(Segment)) { name =>
+  routeBuf() = (get & pathPrefix("name") & path(Segment)) { name =>
       complete(ToResponseMarshallable(s"Your name is: $name"))
   }
 
-  register() = (post & path("helloMessage") & entity(as[HelloMsg])) { msg =>
+  routeBuf() = (post & path("helloMessage") & entity(as[HelloMsg])) { msg =>
       complete(msg)
   }
 
-  register() = (get & path("divide" / IntNumber / IntNumber)) { (a, b) =>
+  routeBuf() = (get & path("divide" / IntNumber / IntNumber)) { (a, b) =>
     handleExceptions(divByZeroHandler) {
       complete(s"The result is ${a / b}")
     }

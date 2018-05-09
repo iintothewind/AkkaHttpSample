@@ -6,7 +6,7 @@ import java.io.File
 import akka.http.scaladsl.server.Directives._
 
 trait UploadRoutes {
-  register() = (post
+  routeBuf() = (post
     & path("upload")
     & storeUploadedFile("image", fileInfo => new File(fileInfo.getFieldName))) { case (fileInfo, file) =>
       file.delete
