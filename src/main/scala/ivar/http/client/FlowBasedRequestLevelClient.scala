@@ -12,7 +12,7 @@ import scala.util.{Failure, Success}
 object FlowBasedRequestLevelClient extends App with ZhihuSerdes {
   val flow = Http().superPool[Unit](settings = connectionPoolSettings)
   Source
-    .single(HttpRequest(uri = "https://news-at.zhihu.com/api/4/news/latest") -> ())
+    .single((HttpRequest(uri = "https://news-at.zhihu.com/api/4/news/latest"), ()))
     .via(flow)
     .runForeach {
       case (Success(resp), _) => println(s"resp: $resp")
