@@ -6,7 +6,7 @@ import ivar.http.client.pool.QueueConnectionPool
 
 import scala.util.{Failure, Success}
 
-object MiWeatherClient extends App {
+object QueueConnectionPoolClient extends App {
   val pool = QueueConnectionPool.httpsPool("weatherapi.market.xiaomi.com")
   pool
     .enqueue(
