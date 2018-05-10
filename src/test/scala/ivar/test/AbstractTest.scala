@@ -2,7 +2,7 @@ package ivar.test
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEachTestData, FlatSpecLike, Matchers}
+import org.scalatest._
 import org.slf4s.Logging
 
 import scala.concurrent.Await
@@ -15,6 +15,7 @@ abstract class AbstractTest(_system: ActorSystem)
     with FlatSpecLike
     with BeforeAndAfterEachTestData
     with BeforeAndAfterAll
+    with BeforeAndAfterEach
     with Logging {
 
   override def afterAll(): Unit = {

@@ -2,13 +2,13 @@ package ivar.http.serdes
 
 import spray.json.{JsObject, JsString, JsValue, RootJsonFormat, _}
 
-sealed case class Story(id: Int, title: String)
+sealed case class Story(id: Int, title: String, share_url: Option[String], body: Option[String])
 
 sealed case class News(date: String, stories: Array[Story], topStories: Array[Story])
 
 
 trait ZhihuSerdes extends AbstractSerdes {
-  implicit val storySerdes: RootJsonFormat[Story] = jsonFormat2(Story.apply)
+  implicit val storySerdes: RootJsonFormat[Story] = jsonFormat4(Story.apply)
   implicit val newsSerdes: RootJsonFormat[News] = new RootJsonFormat[News] {
     override def write(news: News): JsValue =
       JsObject(

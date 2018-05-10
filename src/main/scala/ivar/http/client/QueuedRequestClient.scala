@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.{Keep, Sink, Source}
 import akka.stream.{OverflowStrategy, QueueOfferResult}
-import ivar.http.serdes.{News, ZhihuSerdes}
+import ivar.http.serdes.{News, Story, ZhihuSerdes}
 
 import scala.concurrent.{Future, Promise}
 import scala.util.{Failure, Success}
@@ -35,12 +35,37 @@ object QueuedRequestClient extends App with ZhihuSerdes {
   }
 
 
-  enqueue(HttpRequest(uri = "/api/4/news/latest")).flatMap { response =>
-    response.status match {
-      case StatusCodes.OK => Unmarshal(response.entity).to[News]
-      case _ => Future.failed(new RuntimeException(s"unexpected response: $response"))
+  def listNews(): Future[News] = {
+    enqueue(HttpRequest(uri = "/api/4/news/latest")).flatMap { response =>
+      response.status match {
+        case StatusCodes.OK => Unmarshal(response.entity).to[News]
+        case _ => Future.failed(new RuntimeException(s"unexpected response: $response"))
+      }
     }
-  }.onComplete(println(_))
+  }
 
+  def fetchNews(id: Int): Future[Story] = {
+    enqueue(HttpRequest(uri = s"/api/4/news/$id")).flatMap { response =>
+      response.status match {
+        case StatusCodes.OK => Unmarshal(response.entity).to[Story]
+        case _ => Future.failed(new RuntimeException(s"unexpected response: $response"))
+      }
+    }
+  }
 
+  def listStories(news: Future[News]): Future[List[Story]] = news
+    .map(_.stories)
+    .flatMap { stories =>
+      Future.sequence(
+        stories
+          .map(story => fetchNews(story.id))
+          .toList)
+    }
+
+  val news = listNews()
+  val stories = listStories(news)
+  stories.onComplete {
+    case Success(s) => s.foreach(println(_))
+    case Failure(e) => println(e)
+  }
 }
