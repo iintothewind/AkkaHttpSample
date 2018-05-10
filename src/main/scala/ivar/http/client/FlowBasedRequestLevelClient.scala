@@ -15,7 +15,7 @@ object FlowBasedRequestLevelClient extends App with ZhihuSerdes {
     .single((HttpRequest(uri = "https://news-at.zhihu.com/api/4/news/latest"), ()))
     .via(flow)
     .runForeach {
-      case (Success(resp), _) => println(s"resp: $resp")
+      case (Success(resp), _) => resp.entity.dataBytes.map(_.utf8String).runForeach(println(_))
       case (Failure(e), _) => println(s"resp: $e")
     }
 
