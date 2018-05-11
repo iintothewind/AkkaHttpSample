@@ -13,7 +13,10 @@ import scala.util.{Failure, Success}
 
 
 object QueuedRequestClient extends App with ZhihuSerdes {
-  val pool = Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](host = "news-at.zhihu.com", settings = connectionPoolSettings)
+  val pool = Http()
+    .cachedHostConnectionPoolHttps[Promise[HttpResponse]](
+    host = "news-at.zhihu.com",
+    settings = connectionPoolSettings)
 
   val queue = Source
     .queue[(HttpRequest, Promise[HttpResponse])](10, OverflowStrategy.dropNew)
@@ -44,7 +47,7 @@ object QueuedRequestClient extends App with ZhihuSerdes {
     }
   }
 
-  def fetchNews(id: Int): Future[Story] = {
+  def fetchStory(id: Int): Future[Story] = {
     enqueue(HttpRequest(uri = s"/api/4/news/$id")).flatMap { response =>
       response.status match {
         case StatusCodes.OK => Unmarshal(response.entity).to[Story]
@@ -57,9 +60,7 @@ object QueuedRequestClient extends App with ZhihuSerdes {
     .map(_.stories)
     .flatMap { stories =>
       Future.sequence(
-        stories
-          .map(story => fetchNews(story.id))
-          .toList)
+        stories.map(story => fetchStory(story.id)))
     }
 
   val news = listNews()

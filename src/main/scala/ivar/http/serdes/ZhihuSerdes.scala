@@ -4,7 +4,7 @@ import spray.json.{JsObject, JsString, JsValue, RootJsonFormat, _}
 
 sealed case class Story(id: Int, title: String, share_url: Option[String], body: Option[String])
 
-sealed case class News(date: String, stories: Array[Story], topStories: Array[Story])
+sealed case class News(date: String, stories: List[Story], topStories: List[Story])
 
 
 trait ZhihuSerdes extends AbstractSerdes {
@@ -19,7 +19,7 @@ trait ZhihuSerdes extends AbstractSerdes {
     override def read(json: JsValue): News =
       json.asJsObject.getFields("date", "stories", "top_stories") match {
         case Seq(JsString(date), stories, topStories) =>
-          News(date, stories.convertTo[Array[Story]], topStories.convertTo[Array[Story]])
+          News(date, stories.convertTo[List[Story]], topStories.convertTo[List[Story]])
         case _ => deserializationError("unsupported format")
       }
   }
