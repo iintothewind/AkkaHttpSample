@@ -20,6 +20,6 @@ sealed case class RouteRegister(routeBuffer: ListBuffer[Route]) {
   }
 }
 
-sealed trait RouteService
+trait RouteService
   extends HelloRoutes
     with UploadRoutes
