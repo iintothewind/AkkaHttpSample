@@ -6,7 +6,7 @@ lazy val akkaHttpSample = (project in file(".")).
   settings(
   name := "AkkaHttpSample",
   version := "1.0",
-  scalaVersion := "2.12.6",
+  scalaVersion := "2.12.7",
   scalacOptions ++= Seq(
     "-deprecation",
     "-feature",
@@ -25,8 +25,8 @@ shellPrompt := { s => Project.extract(s).currentProject.id + "> " }
 //  _.copy(overrideScalaVersion = true)
 //}
 
-lazy val akkaVersion = "2.5.12"
-lazy val akkaHttpVersion = "10.1.1"
+lazy val akkaVersion = "2.5.18"
+lazy val akkaHttpVersion = "10.1.5"
 lazy val log4jVersion = "2.7"
 lazy val latest = "latest.integration"
 

@@ -5,6 +5,7 @@ import java.security.cert.X509Certificate
 
 import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
+import akka.http.scaladsl.UseHttp2.Negotiated
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.{ClientTransport, Http, HttpsConnectionContext}
@@ -32,12 +33,14 @@ package object http {
 
   def routes: List[Route] = routeBuffer.result()
 
-  val connectionPoolSettings: ConnectionPoolSettings = Try(cfg.getConfig("akka.http.client.proxy"))
-    .map(c => (c.getString("host"), c.getInt("port"))) match {
-    case Success((host, port)) => ConnectionPoolSettings(system)
-      .withTransport(ClientTransport.httpsProxy(InetSocketAddress.createUnresolved(host, port)))
-    case Failure(_) => ConnectionPoolSettings(system)
-  }
+  val connectionPoolSettings: ConnectionPoolSettings =
+    Try(cfg.getConfig("akka.http.client.proxy"))
+      .map(c => (c.getString("host"), c.getInt("port"))) match {
+      case Success((host, port)) =>
+        ConnectionPoolSettings(system)
+          .withTransport(ClientTransport.httpsProxy(InetSocketAddress.createUnresolved(host, port)))
+      case Failure(_) => ConnectionPoolSettings(system)
+    }
 
   private val looseSslContext: SSLContext = {
     object NoCheckX509TrustManager extends X509TrustManager {
@@ -69,7 +72,8 @@ package object http {
     enabledCipherSuites = ctx.enabledCipherSuites,
     enabledProtocols = ctx.enabledProtocols,
     clientAuth = ctx.clientAuth,
-    sslParameters = ctx.sslParameters
+    sslParameters = ctx.sslParameters,
+    http2 = Negotiated
   )
   Http().setDefaultClientHttpsContext(httpsConnectionContext)
 }

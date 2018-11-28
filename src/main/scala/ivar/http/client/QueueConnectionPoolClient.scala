@@ -7,7 +7,7 @@ import ivar.http.client.pool.QueueConnectionPool
 import scala.util.{Failure, Success}
 
 object QueueConnectionPoolClient extends App {
-  val pool = QueueConnectionPool.httpsPool("weatherapi.market.xiaomi.com")
+  val pool = QueueConnectionPool.httpsPool("weatherapi.market.xiaomi.com", connectionPoolSettings = connectionPoolSettings)
   pool
     .enqueue(
       HttpRequest(
@@ -17,5 +17,4 @@ object QueueConnectionPoolClient extends App {
       case Success(resp) => resp.entity.dataBytes.map(_.utf8String).runForeach(println)
       case Failure(e) => throw e
     }
-
 }

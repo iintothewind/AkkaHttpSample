@@ -13,15 +13,19 @@ trait HelloRoutes extends HelloSerdes {
   }
 
   routeBuf() = (get & path("hello")) {
-      complete("Hello, Akka Http")
+    complete("Hello, Akka Http")
+  }
+
+  routeBuf("test") = (get & path("hello")) {
+    complete("Hello, Akka Http")
   }
 
   routeBuf() = (get & pathPrefix("name") & path(Segment)) { name =>
-      complete(ToResponseMarshallable(s"Your name is: $name"))
+    complete(ToResponseMarshallable(s"Your name is: $name"))
   }
 
   routeBuf() = (post & path("helloMessage") & entity(as[HelloMsg])) { msg =>
-      complete(msg)
+    complete(msg)
   }
 
   routeBuf() = (get & path("divide" / IntNumber / IntNumber)) { (a, b) =>
@@ -29,4 +33,5 @@ trait HelloRoutes extends HelloSerdes {
       complete(s"The result is ${a / b}")
     }
   }
+
 }

@@ -11,8 +11,15 @@ sealed case class RouteRegister(routeBuffer: ListBuffer[Route]) {
   def update(route: => Route): Unit = {
     routeBuffer += pathPrefix("api")(route)
   }
+
+  def update(prefix: String, route: => Route): Unit = {
+    Option(prefix).filter(_.trim.nonEmpty) match {
+      case None => routeBuffer += pathPrefix("api")(route)
+      case Some(x) => routeBuffer += pathPrefix(x)(route)
+    }
+  }
 }
 
-trait RouteService
+sealed trait RouteService
   extends HelloRoutes
     with UploadRoutes

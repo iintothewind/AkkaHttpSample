@@ -4,21 +4,20 @@ package client
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes}
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.scaladsl.{Keep, Sink, Source}
+import akka.stream.scaladsl.{Flow, Keep, Sink, Source, SourceQueueWithComplete}
 import akka.stream.{OverflowStrategy, QueueOfferResult}
 import ivar.http.serdes.{News, Story, ZhihuSerdes}
 
 import scala.concurrent.{Future, Promise}
-import scala.util.{Failure, Success}
-
+import scala.util.{Failure, Success, Try}
 
 object QueuedRequestClient extends App with ZhihuSerdes {
-  val pool = Http()
+  val pool: Flow[(HttpRequest, Promise[HttpResponse]), (Try[HttpResponse], Promise[HttpResponse]), Http.HostConnectionPool] = Http()
     .cachedHostConnectionPoolHttps[Promise[HttpResponse]](
     host = "news-at.zhihu.com",
     settings = connectionPoolSettings)
 
-  val queue = Source
+  val queue: SourceQueueWithComplete[(HttpRequest, Promise[HttpResponse])] = Source
     .queue[(HttpRequest, Promise[HttpResponse])](10, OverflowStrategy.dropNew)
     .via(pool)
     .toMat(Sink.foreach {
@@ -63,8 +62,8 @@ object QueuedRequestClient extends App with ZhihuSerdes {
         stories.map(story => fetchStory(story.id)))
     }
 
-  val news = listNews()
-  val stories = listStories(news)
+  val news: Future[News] = listNews()
+  val stories: Future[List[Story]] = listStories(news)
   stories.onComplete {
     case Success(s) => s.foreach(println(_))
     case Failure(e) => println(e)
